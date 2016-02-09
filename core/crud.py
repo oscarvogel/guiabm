@@ -6,6 +6,9 @@
 import gui
 import sqlite3
 import sys
+from os.path import join, abspath
+
+
 
 def on_cierra(evt):
     mywin.close()
@@ -32,12 +35,21 @@ panel = mywin['panel']
 class crud():
 	
 	def __init__(self, *args, **kwargs):
-		print kwargs
+		base = ''
 
 		if kwargs.has_key('basedatos'):
-			self.DB = kwargs['basedatos']
+			if sys.platform.startswith('win32'):
+				ruta = kwargs['basedatos'].split('/')
+				for r in ruta:
+					base += join(r)
+			elif sys.platform.startswith('linux'):
+				ruta = kwargs['basedatos'].split('\\')
+				for r in ruta:
+					base += join(r)
+			
+			self.DB = abspath(base)
 		else:
-			self.DB = 'modelos\test.db'
+			self.DB = abspath(join('modelos','test.db'))
 			
 		self.con = self.conectar()
 		self.con.row_factory = sqlite3.Row
