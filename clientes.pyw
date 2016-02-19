@@ -11,7 +11,7 @@ formato = {
 
 def main():
 	abm = crud(tabla='clientes', 
-		basedatos=os.path.join('modelosp','pyfactura.db'),
+		basedatos=os.path.join('modelos','pyfactura.db'),
 		formato=formato)
 
 if __name__ == '__main__':
