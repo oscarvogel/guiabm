@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import os
 from core.crud import crud
 
 formato = {
@@ -10,7 +11,7 @@ formato = {
 
 def main():
 	abm = crud(tabla='clientes', 
-		basedatos='modelos\pyfactura.db',
+		basedatos=os.path.join('modelosp','pyfactura.db'),
 		formato=formato)
 
 if __name__ == '__main__':
