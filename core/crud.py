@@ -135,7 +135,7 @@ class crud():
 	def conectar(self, basedatos=""):
 		try:
 			db = sqlite3.connect(self.DB)
-		except lite.Error, e:
+		except sqlite3.Error, e:
 			print "Error %s:" % e.args[0]
 			sys.exit(1)
 		return db
