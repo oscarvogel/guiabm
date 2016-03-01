@@ -1,14 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-
 "Experimental CRUD sample gui2py application demo"
 import gui
 import sqlite3
 import sys
 from os.path import join, abspath
 
-
+DEBUG = True
 
 def on_cierra(evt):
     mywin.close()
@@ -88,7 +87,7 @@ class crud():
 				if formato.has_key(x[0]):
 					gui.Label(name='lbl'+x[0], 
 						top=nTop, 
-						text=formato[x[0]]['text'] if formato[x[0]].has_key('text') else x[0],)
+						text=formato[x[0]]['text'] if formato[x[0]].has_key('text') else x[0].capitalize(),)
 					gui.TextBox(name='txt'+x[0], 
 						top=nTop, 
 						left='130', 
@@ -110,21 +109,41 @@ class crud():
 		mywin.height = nTop    
 		
 	def button_press_create(self, evt):
-		gui.alert("Crear")
-	
-	def button_press_update(self, evt):
-		sql = "update " + self.tabla + " set "
 		for x in self.controls.itervalues():
 			ctrl = panel['record'][x['name']]
-			if x['field'] == self.controls['id']['field']:
-				key = (" where " + self.controls['id']['field'] +
-						" = '" + ctrl.value + "'")
+			if type(ctrl.value) == float:
+				ctrl.value = 0.00
 			else:
-				sql += x['field'] + " = '" + ctrl.value + "',"
-		sql = sql[:-1] + key
+				ctrl.value = ""
+			if DEBUG:
+				print "Tipo {} nombre {} mascara {}".format(type(ctrl.value), ctrl.name, ctrl.mask)
+
+	
+	def button_press_update(self, evt):
+		if self.nuevo:
+			sql = 'insert into ' + self.tabla + '('
+			sql += ','.join(d for d in self.controls.itervalues())
+			sql += ') values('
+			sql += ',%s'.join('' for d in self.controls.itervalues())
+			sql += ')'
+			params = [d for d in self.controls.itervalues()]
+		else:
+			query = 'update ' + self.tabla + ' set '
+			query += ', '.join(d['field'] + ' = ?' \
+				for d in self.controls.itervalues() \
+				if d['field'] != self.controls['id']['field'])
+			params = [panel['record'][d['name']].value \
+				for d in self.controls.itervalues() \
+				if d['field'] != self.controls['id']['field']]
+			query += ' where ' + self.controls['id']['field'] + ' = ?'
+			params.append(panel['record'][self.controls['id']['name']].value)
+
+		if DEBUG:
+			print query, params
 		cur = self.con.cursor()
-		cur.execute(sql)
+		cur.execute(query, params)
 		self.con.commit()
+		gui.alert("Datos actualizados", "Sistema")
 
 	def button_press_delete(self, evt):
 		gui.alert("Borrar")
@@ -148,9 +167,13 @@ class crud():
 		cur = self.con.cursor()
 		cur.execute(sql)
 		datos = cur.fetchone()
-		for x in self.controls.itervalues():
-			ctrl = panel['record'][x['name']]
-			ctrl.value = datos[x['field']]
+		if datos is None:
+			self.nuevo = True
+		else:
+			self.nuevo = False
+			for x in self.controls.itervalues():
+				ctrl = panel['record'][x['name']]
+				ctrl.value = datos[x['field']]
 		
 	def existe_tabla(self):
 		cur = self.con.cursor()
