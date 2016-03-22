@@ -6,6 +6,7 @@ import gui
 import sqlite3
 import sys
 from os.path import join, abspath
+from busqueda import busqueda
 
 DEBUG = True
 
@@ -25,9 +26,11 @@ with gui.Window(name='ppal', title=u'gui2py CRUD demo', resizable=True,
 		gui.Button(label=u'Borrar', name='delete', sizer_border=4, )
 		gui.Button(label=u'Buscar', name='search', sizer_border=4, )
 		gui.Button(label=u'Cerrar', name='close', sizer_border=4, onclick=on_cierra)
+	gui.StatusBar(name='statusbar', )
 		
 
 mywin = gui.get("ppal")
+mywin['statusbar'].text = "guiabm - a CRUD example for gui2py"
 panel = mywin['panel']
 
 
@@ -66,7 +69,8 @@ class crud():
 			nTop = '10'
 			fila = 0
 			for x in self.tabla.as_dict()['fields']:
-				print x['type']
+				if DEBUG:
+					print x['type']
 				mask = ''
 				if x['type'] == 'date':
 					mask = 'date'
@@ -96,7 +100,8 @@ class crud():
 						mask=mask
 						)
 				self.controls['txt'+x['fieldname']] = \
-					{'name':'txt'+x['fieldname'], 'field':x['fieldname']}
+					{'name':'txt'+x['fieldname'], 'field':x['fieldname'],\
+					'type':x['type']}
 				nTop = str(int(nTop)+30)
 				fila += 1
 				if formato.has_key(x['fieldname']):
@@ -105,11 +110,12 @@ class crud():
 						panel['record']['txt'+x['fieldname']].onblur = \
 							self.on_id_change
 						self.controls['id'] = \
-							{'name':'txt'+x['fieldname'], 'field':x['fieldname']}
+							{'name':'txt'+x['fieldname'], \
+							'field':x['fieldname'],
+							'type':x['type']}
 
 	def button_press_create(self, evt):
 		pass
-
 	
 	def button_press_update(self, evt):
 		param = {}
@@ -141,7 +147,8 @@ class crud():
 			self.db.commit()
 		
 	def button_press_search(self, evt):
-		gui.alert("Busqueda")
+		bus = busqueda(db=self.db, tabla=self.tabla)
+		print bus
 	
 	def conectar(self, basedatos=""):
 		try:
@@ -160,7 +167,10 @@ class crud():
 		else:
 			for x in self.controls.itervalues():
 				ctrl = panel['record'][x['name']]
-				ctrl.value = miregistro[x['field']]
+				if x['type'].startswith('decimal'):
+					ctrl.value = float(miregistro[x['field']])
+				else:
+					ctrl.value = miregistro[x['field']]
 			self.nuevo = False
 		
 	def existe_tabla(self):
