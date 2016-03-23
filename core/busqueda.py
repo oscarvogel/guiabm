@@ -46,7 +46,7 @@ class busqueda():
 		return self.ValorRetorno
 
 	def armagrilla(self):
-		registros = self.db().select(self.db[self.tabla].ALL)
+		registros = self.db().select(self.db[self.tabla].ALL, orderby='detalle')
 		panel = self.busqueda['panel']
 		with panel['panelgrid']:
 			gui.Label(name='label_140_130', sizer_align='center', sizer_border=4, 
@@ -65,3 +65,12 @@ class busqueda():
 		
 		for registro in registros:
 			gv.items.insert(0,[registro[x] for x in self.tabla.fields()])
+			
+		gv.ongridselectcell = self.SeleccionaGrilla
+		
+	def SeleccionaGrilla(self, evt):
+		gv = self.busqueda['panel']['panelgrid']['gridview']
+		
+		row, col = evt.GetRow(), evt.GetCol()
+		self.ValorRetorno = gv.GetValue(1, 0)
+		print self.ValorRetorno
