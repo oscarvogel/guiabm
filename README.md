@@ -15,3 +15,7 @@ Tambien clonamos gui2py con
 > git clone https://github.com/reingart/gui2py.git
 
 de este proyecto se debe copiar toda la carpeta gui a guiabm
+
+Se debe descargar e instalar pyDAL 
+
+> https://pypi.python.org/pypi/pyDAL
