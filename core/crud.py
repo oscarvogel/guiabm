@@ -52,6 +52,11 @@ class crud():
 			self.formato = kwargs['formato']
 		else:
 			self.formato = {}
+		
+		if kwargs.has_key('orden'):
+			self.orden = kwargs['orden']
+		else:
+			self.orden = ''
 			
 		self.InitUI()
 		panel['create'].onclick = self.button_press_create
@@ -147,7 +152,7 @@ class crud():
 			self.db.commit()
 		
 	def button_press_search(self, evt):
-		bus = busqueda(db=self.db, tabla=self.tabla)
+		bus = busqueda(db=self.db, tabla=self.tabla, orden=self.orden)
 		print bus
 	
 	def conectar(self, basedatos=""):
